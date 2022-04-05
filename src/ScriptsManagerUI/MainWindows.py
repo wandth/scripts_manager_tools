@@ -1,2 +1,0 @@
-from ScriptsManagerUtil import sqliteHelper
-

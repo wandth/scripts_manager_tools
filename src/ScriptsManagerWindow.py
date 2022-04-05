@@ -8,18 +8,20 @@ from shiboken2 import wrapInstance
 from maya import OpenMayaUI as omui, cmds, mel
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
+from ScriptsManagerUI import ScriptsWindow
 
-from ScriptsManagerUI import MainWindows
+reload(ScriptsWindow)
 
-reload(MainWindows)
 
 def mayaMainWindows() :
     return wrapInstance(long(omui.MQtUtil.mainWindow()), QWidget)
+
 
 class MainWindow(MayaQWidgetDockableMixin, QWidget) :
     object_name = "scripts_manager_tools"
     docker_windows_name = object_name + "Dock"
     windows_title = "Scripts Manager"
+
     def __init__(self, parent = mayaMainWindows()) :
         super(MainWindow, self).__init__(parent)
         self.setWindowFlags(Qt.Window)
@@ -30,8 +32,10 @@ class MainWindow(MayaQWidgetDockableMixin, QWidget) :
         main_layout = QHBoxLayout(self)
 
         tab_widget = QTabWidget()
+        self.scripts_tab = ScriptsWindow.ScriptsWindow(self)
 
-        main_layout.addWidget(QPushButton("test"))
+        tab_widget.addTab(self.scripts_tab, "Scripts")
+
         main_layout.addWidget(tab_widget)
 
     def setWindowDocked(self) :

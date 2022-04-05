@@ -3,7 +3,7 @@ import json
 import sqlite3
 from maya import cmds
 from contextlib import closing
-from PySide2.QtCore import QDir, QFileInfo
+from PySide2.QtCore import QDir, QFileInfo, QFile
 
 
 class SqliteHelper :
@@ -12,9 +12,9 @@ class SqliteHelper :
                  config_path = "E:/python/scripts_manager_tools/src/resource/config.json"
                  ) :
         self.db_path = db_path
-        self.scripts_path = scripts_path
         self.config_info = json.loads(open(config_path, "r").read())
         self.default_tags = self.config_info["default_tags"]
+        self.root_dir = QDir(scripts_path)
 
         self.createTable()
 
@@ -45,8 +45,9 @@ class SqliteHelper :
         database.close()
 
     def updateScriptsTable(self) :
-        root_dir = QDir(self.scripts_path)
-        for root_child in root_dir.entryInfoList(QDir.NoSymLinks | QDir.NoDotAndDotDot | QDir.Files | QDir.Dirs) :  # type: QFileInfo
+        self.__deleteNotExistScript()
+
+        for root_child in self.root_dir.entryInfoList(QDir.NoSymLinks | QDir.NoDotAndDotDot | QDir.Files | QDir.Dirs) :  # type: QFileInfo
             # 遍历全部的根组的子文件夹
             if root_child.isDir() and root_child.baseName() in self.default_tags.keys() :
                 for child in QDir(root_child.absoluteFilePath()).entryInfoList(QDir.NoSymLinks | QDir.NoDotAndDotDot | QDir.Files | QDir.Dirs) :  # type: QFileInfo
@@ -76,8 +77,6 @@ class SqliteHelper :
     def deleteScriptTag(self, script_name, tag_name) :
         pass
 
-    def deleteTag(self, tag_name) :
-        pass
 
     def addTag(self, tag_name) :
         pass
@@ -120,3 +119,16 @@ class SqliteHelper :
 
         if tag != "" :
             self.addScriptTag(script_name = name, tag_name = tag)
+
+    def __deleteNotExistScript(self) :
+        all_delete_script = []
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+            cursor.execute(U"""SELECT * FROM scripts""")
+            scripts = cursor.fetchall()
+            for script in scripts :
+                if not QFile(script[1]).exists() :
+                    cursor.execute("""DELETE FROM scripts WHERE name = "{name}" """.format(name = script[0]))
+                    all_delete_script.append(script[0])
+            database.commit()

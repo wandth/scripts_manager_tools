@@ -4,6 +4,10 @@ import os
 import sqlite3
 
 from PySide2.QtCore import QDir, QFileInfo, QTextCodec
+import json
+import os
+import sqlite3
+
 from maya import cmds
 from contextlib import closing
 
@@ -84,6 +88,7 @@ class SqliteHelper :
         with closing(sqlite3.connect(self.db_path)) as database :
             database.text_factory = bytes
             cursor = database.cursor()
+
             cursor.execute(U"""SELECT * FROM scripts WHERE name = "{name}" """.format(name = name))
             if cursor.fetchall() :
                 update_str = U"""UPDATE scripts SET script_path = "{script_path}", type = "{script_type}", python_type = "{python_type}" WHERE name = "{name}" """.format(
@@ -94,10 +99,12 @@ class SqliteHelper :
                     name = name, script_path = script_path, script_type = script_type, python_type = python_type)
                 cursor.execute(insert_str)
 
+
             database.commit()
 
         if tag != "" :
             self.addScriptTag(script_name = name, tag_name = tag)
+
 
     def addScriptTag(self, script_name, tag_name) :
         with closing(sqlite3.connect(self.db_path)) as database :
@@ -109,6 +116,7 @@ class SqliteHelper :
             if not cursor.fetchall() :
                 insert_str = U"""INSERT INTO scripts_tags(script_name, tag_name) VALUES("{script_name}", "{tag_name}")""".format(
                     script_name = script_name, tag_name = tag_name)
+
                 cursor.execute(insert_str)
             database.commit()
 
@@ -120,3 +128,5 @@ class SqliteHelper :
 
     def addTag(self, tag_name) :
         pass
+
+

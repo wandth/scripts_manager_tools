@@ -77,6 +77,13 @@ class SqliteHelper :
     def deleteScriptTag(self, script_name, tag_name) :
         pass
 
+    def getTags(self) :
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+
+            cursor.execute("""SELECT name FROM tags""")
+            return [x[0] for x in cursor.fetchall()]
 
     def addTag(self, tag_name) :
         pass

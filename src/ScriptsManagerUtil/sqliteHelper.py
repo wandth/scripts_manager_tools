@@ -19,30 +19,31 @@ class SqliteHelper :
         self.createTable()
 
     def createTable(self) :
-        database = sqlite3.connect(self.db_path)
-        cursor = database.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS scripts(
-                name TEXT NOT NULL PRIMARY KEY,
-                script_path TEXT NOT NULL,
-                type TEXT NOT NULL,
-                python_type TEXT NOT NULL)""")
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS tags(
-                name TEXT NOT NULL PRIMARY KEY,
-                can_be_delete INTEGER NOT NULL)""")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS scripts(
+                    name TEXT NOT NULL PRIMARY KEY,
+                    script_path TEXT NOT NULL,
+                    type TEXT NOT NULL,
+                    python_type TEXT NOT NULL)""")
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS scripts_tags(
-                script_name TEXT NOT NULL,
-                tag_name TEXT NOT NULL)""")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tags(
+                    name TEXT NOT NULL PRIMARY KEY,
+                    can_be_delete INTEGER NOT NULL)""")
 
-        for tag in self.default_tags.keys() :
-            cursor.execute("""INSERT INTO tags(name, can_be_delete) select ?, ? where not exists(select * from tags where name = ?)""",
-                           (tag, 1, tag))
-        database.commit()
-        database.close()
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS scripts_tags(
+                    script_name TEXT NOT NULL,
+                    tag_name TEXT NOT NULL)""")
+
+            for tag in self.default_tags.keys() :
+                cursor.execute("""INSERT INTO tags(name, can_be_delete) select ?, ? where not exists(select * from tags where name = ?)""",
+                               (tag, 1, tag))
+            database.commit()
 
     def updateScriptsTable(self) :
         self.__deleteNotExistScript()
@@ -64,7 +65,6 @@ class SqliteHelper :
         with closing(sqlite3.connect(self.db_path)) as database :
             database.text_factory = bytes
             cursor = database.cursor()
-
             cursor.execute(U"""SELECT * FROM scripts_tags WHERE script_name = "{script_name}" AND tag_name = "{tag_name}" """.format(
                 script_name = script_name, tag_name = tag_name))
             if not cursor.fetchall() :
@@ -74,19 +74,59 @@ class SqliteHelper :
                 cursor.execute(insert_str)
             database.commit()
 
-    def deleteScriptTag(self, script_name, tag_name) :
-        pass
+    def removeScriptTag(self, script_name, tag_name) :
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+            cursor.execute(U"""SELECT * FROM scripts_tags WHERE script_name = "{script_name}" AND tag_name = "{tag_name}" """.format(
+                script_name = script_name, tag_name = tag_name))
+            if cursor.fetchall() :
+                cursor.execute(U"""DELETE FROM scripts_tags WHERE script_name = "{script_name}" AND tag_name = "{tag_name}" """.format(
+                    script_name = script_name, tag_name = tag_name))
+            database.commit()
+
+    def addTag(self, tag_name) :
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+            cursor.execute("""INSERT INTO tags(name, can_be_delete) select ?, ? where not exists(select * from tags where name = ?)""",
+                           (tag_name, 1, tag_name))
+
+    def deleteTag(self, tag_name) :
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+            cursor.execute("""SELECT * FROM tags WHERE tag_name = "{tag_name}" """.format(tag_name = tag_name))
+            if cursor.fetchall() :
+                tag_info = cursor.fetchall()[0]
+                if tag_info[1] == 1 :
+                    cursor.execute("""DELETE FROM scripts_tags WHERE tag_name = "{tag_name}" """.format(tag_name = tag_name))
+                    cursor.execute("""DELETE FROM tags WHERE name = "{tag_name}" """.format(tag_name = tag_name))
+            database.commit()
 
     def getTags(self) :
         with closing(sqlite3.connect(self.db_path)) as database :
             database.text_factory = bytes
             cursor = database.cursor()
-
             cursor.execute("""SELECT name FROM tags""")
-            return [x[0] for x in cursor.fetchall()]
+            tags = [tag[0] for tag in cursor.fetchall()]
+        return tags
 
-    def addTag(self, tag_name) :
-        pass
+    def getScriptsFromTag(self, tag_name) :
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+            cursor.execute("""SELECT script_name FROM scripts_tags WHERE tag_name = "{tag_name}" """.format(tag_name = tag_name))
+            scripts = [x[0] for x in cursor.fetchall()]
+        return scripts
+
+    def getScriptsHasNoTag(self) :
+        with closing(sqlite3.connect(self.db_path)) as database :
+            database.text_factory = bytes
+            cursor = database.cursor()
+            cursor.execute("""select name from scripts where name not in (select script_name from scripts_tags)""")
+            has_no_tag_scripts = [x[0] for x in cursor.fetchall()]
+        return has_no_tag_scripts
 
     def __updateFolder(self, file_ino, tag) :
         new_folder = QDir(file_ino.absoluteFilePath())

@@ -24,6 +24,7 @@ class ScriptsWindow(QWidget) :
             checked_tag.stateChanged.connect(self.getCheckedTags)
             self.tags_layout.addWidget(checked_tag, index % 3, index / 3)
 
+        # scripts model
         self.scripts_model = QStringListModel()
         self.scripts_listview = QListView()
         self.scripts_listview.setEditTriggers(QListView.NoEditTriggers)

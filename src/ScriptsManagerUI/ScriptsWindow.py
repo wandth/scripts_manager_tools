@@ -4,9 +4,13 @@ from PySide2.QtWidgets import QWidget, QListView, QVBoxLayout, QGridLayout, QLin
 
 from ScriptsManagerUI.widget import checkableTag
 from ScriptsManagerUtil import sqliteHelper
+from ScriptsManagerUI.util import ScriptsListModel, ScriptsListFilterModel, ScriptsListDelegate
 
 reload(sqliteHelper)
 reload(checkableTag)
+reload(ScriptsListModel)
+reload(ScriptsListDelegate)
+reload(ScriptsListFilterModel)
 
 
 class ScriptsWindow(QWidget) :
@@ -25,9 +29,11 @@ class ScriptsWindow(QWidget) :
             self.tags_layout.addWidget(checked_tag, index % 3, index / 3)
 
         # scripts model
-        self.scripts_model = QStringListModel()
+        # self.scripts_model = QStringListModel()
+        self.scripts_model = ScriptsListModel.ScriptsListModel([["ddddd", "bbb", "ccc", "ddd", "eee"], ["ddddd", "bbb", "ccc", "ddd", "eee"]])
+
         self.scripts_listview = QListView()
-        self.scripts_listview.setEditTriggers(QListView.NoEditTriggers)
+        self.scripts_listview.setItemDelegate(ScriptsListDelegate.ScriptsListDelegate())
         self.scripts_listview.setModel(self.scripts_model)
 
         self.search_lineedit = QLineEdit()

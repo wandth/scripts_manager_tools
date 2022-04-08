@@ -7,16 +7,16 @@ from PySide2.QtCore import QDir, QFileInfo, QFile
 
 
 class SqliteHelper :
-    def __init__(self, db_path = "E:/python/scripts_manager_tools/src/resource/scripts.db",
-                 scripts_path = "E:/python/scripts_manager_tools/user_tools",
-                 config_path = "E:/python/scripts_manager_tools/src/resource/config.json"
+    def __init__(self, db_path = "E:/pycharm/scripts_manager_tools/src/resource/scripts.db",
+                 scripts_path = "E:/pycharm/scripts_manager_tools/user_tools",
+                 config_path = "E:/pycharm/scripts_manager_tools/src/resource/config.json"
                  ) :
         self.db_path = db_path
         self.config_info = json.loads(open(config_path, "r").read())
         self.default_tags = self.config_info["default_tags"]
         self.root_dir = QDir(scripts_path)
 
-        self.createTable()
+        # self.createTable()
 
     def createTable(self) :
         with closing(sqlite3.connect(self.db_path)) as database :

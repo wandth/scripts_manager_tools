@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+import os.path
 import sqlite3
 from maya import cmds
 from contextlib import closing
@@ -7,9 +8,11 @@ from PySide2.QtCore import QDir, QFileInfo, QFile
 
 
 class SqliteHelper :
-    def __init__(self, db_path = "E:/pycharm/scripts_manager_tools/src/resource/scripts.db",
-                 scripts_path = "E:/pycharm/scripts_manager_tools/user_tools",
-                 config_path = "E:/pycharm/scripts_manager_tools/src/resource/config.json"
+    script_project_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/").rsplit("/", 2)[0]
+
+    def __init__(self, db_path = script_project_path + "/src/resource/scripts.db",
+                 scripts_path = script_project_path + "/user_tools",
+                 config_path = script_project_path + "/src/resource/config.json"
                  ) :
         self.db_path = db_path
         self.config_info = json.loads(open(config_path, "r").read())

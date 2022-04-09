@@ -35,4 +35,5 @@ class ScriptsListModel(QAbstractListModel) :
             return value
 
     def flags(self, index) :
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        if index.isValid() :
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable

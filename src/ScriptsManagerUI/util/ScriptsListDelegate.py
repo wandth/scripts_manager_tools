@@ -1,5 +1,5 @@
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QStyledItemDelegate
+from PySide2.QtWidgets import QStyledItemDelegate, QStyle
 
 from ScriptsManagerUI.util import ScriptRole
 
@@ -13,6 +13,12 @@ class ScriptsListDelegate(QStyledItemDelegate) :
     def paint(self, painter, option, index) :
         painter.save()
         rect = option.rect
+
+        if option.state & QStyle.State_Selected :
+            painter.fillRect(rect, option.palette.highlight())
+
+        if option.state & QStyle.State_MouseOver:
+            painter.fillRect(rect, option.palette.highlight())
 
         name = index.data(ScriptRole.ScriptRole.scriptNameRole)
         path = index.data(ScriptRole.ScriptRole.scriptPathRole)

@@ -6,8 +6,10 @@ reload(ScriptRole)
 
 
 class ScriptsListModel(QAbstractListModel) :
-    def __init__(self, data, parent = None) :
+    def __init__(self, data = None, parent = None) :
         super(ScriptsListModel, self).__init__(parent)
+        if data is None :
+            data = []
         self._data = data
 
     def rowCount(self, parent) :
@@ -37,3 +39,8 @@ class ScriptsListModel(QAbstractListModel) :
     def flags(self, index) :
         if index.isValid() :
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+    def setNewData(self, data) :
+        self.beginResetModel()
+        self._data = data
+        self.endResetModel()

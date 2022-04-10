@@ -19,8 +19,6 @@ class SqliteHelper :
         self.default_tags = self.config_info["default_tags"]
         self.root_dir = QDir(scripts_path)
 
-        # self.createTable()
-
     def createTable(self) :
         with closing(sqlite3.connect(self.db_path)) as database :
             database.text_factory = bytes
@@ -115,13 +113,19 @@ class SqliteHelper :
             tags = [tag[0] for tag in cursor.fetchall()]
         return tags
 
-    def getScriptsFromTag(self, tag_name) :
+    def queryScriptsFromTag(self, tag_name) :
+        res = []
         with closing(sqlite3.connect(self.db_path)) as database :
             database.text_factory = bytes
             cursor = database.cursor()
             cursor.execute("""SELECT script_name FROM scripts_tags WHERE tag_name = "{tag_name}" """.format(tag_name = tag_name))
-            scripts = [x[0] for x in cursor.fetchall()]
-        return scripts
+            scripts = [script_info for script_info in cursor.fetchall()]
+            for script in scripts :
+                cursor.execute("""SELECT * FROM scripts WHERE name = "{script_name}" """.format(script_name = script[0]))
+                script_info = list(cursor.fetchall()[0])
+                script_info.append(tag_name)
+                res.append(script_info)
+        return res
 
     def getScriptsHasNoTag(self) :
         with closing(sqlite3.connect(self.db_path)) as database :

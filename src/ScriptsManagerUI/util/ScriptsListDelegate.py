@@ -17,10 +17,11 @@ class ScriptsListDelegate(QStyledItemDelegate) :
         if option.state & QStyle.State_Selected :
             painter.fillRect(rect, option.palette.highlight())
 
-        if option.state & QStyle.State_MouseOver:
+        if option.state & QStyle.State_MouseOver :
             painter.fillRect(rect, option.palette.highlight())
 
         name = index.data(ScriptRole.ScriptRole.scriptNameRole)
+
         path = index.data(ScriptRole.ScriptRole.scriptPathRole)
         script_type = index.data(ScriptRole.ScriptRole.scriptTypeRole)
         python_type = index.data(ScriptRole.ScriptRole.scriptPythonTypeRole)

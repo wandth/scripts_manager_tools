@@ -1,10 +1,9 @@
 # coding=utf-8
-from PySide2.QtCore import QStringListModel
 from PySide2.QtWidgets import QWidget, QListView, QVBoxLayout, QGridLayout, QLineEdit
+from ScriptsManagerUI.util import ScriptsListModel, ScriptsListFilterModel, ScriptsListDelegate
 
 from ScriptsManagerUI.widget import checkableTag
 from ScriptsManagerUtil import sqliteHelper
-from ScriptsManagerUI.util import ScriptsListModel, ScriptsListFilterModel, ScriptsListDelegate
 
 reload(sqliteHelper)
 reload(checkableTag)
@@ -25,12 +24,10 @@ class ScriptsWindow(QWidget) :
         tags = self.sql.getTags()
         for index, tag in enumerate(tags) :
             checked_tag = checkableTag.CheckableTag(tag, self)
-            checked_tag.stateChanged.connect(self.getCheckedTags)
+            checked_tag.stateChanged.connect(self.setScriptsList)
             self.tags_layout.addWidget(checked_tag, index % 3, index / 3)
 
-        # scripts model
-        # self.scripts_model = QStringListModel()
-        self.scripts_model = ScriptsListModel.ScriptsListModel([["ddddd", "bbb", "ccc", "ddd", "eee"], ["ddddd", "bbb", "ccc", "ddd", "eee"]])
+        self.scripts_model = ScriptsListModel.ScriptsListModel()
 
         self.scripts_listview = QListView()
         self.scripts_listview.setItemDelegate(ScriptsListDelegate.ScriptsListDelegate())
@@ -42,5 +39,9 @@ class ScriptsWindow(QWidget) :
         main_layout.addWidget(self.search_lineedit)
         main_layout.addWidget(self.scripts_listview)
 
-    def getCheckedTags(self) :
+    def setScriptsList(self) :
         checked_tags = [tag.text() for tag in self.findChildren(checkableTag.CheckableTag) if tag.isChecked()]
+        scripts = []
+        for tag in checked_tags :
+            scripts.extend(self.sql.queryScriptsFromTag(tag))
+        self.scripts_model.setNewData(scripts)

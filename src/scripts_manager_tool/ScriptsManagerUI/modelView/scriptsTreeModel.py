@@ -6,7 +6,7 @@ class ScriptRole:
     scriptNameRole = Qt.UserRole
     scriptPathRole = Qt.UserRole + 1
     scriptTypeRole = Qt.UserRole + 2
-    scriptPythonTypeRole = Qt.UserRole + 3
+    scriptModulePathRole = Qt.UserRole + 3
 
 
 class TreeItem:
@@ -54,6 +54,9 @@ class TreeItem:
     
     def setLevel(self, level):
         self._level = level
+    
+    def level(self):
+        return self._level
 
 
 class ScriptsTreeModel(QAbstractItemModel):
@@ -93,8 +96,23 @@ class ScriptsTreeModel(QAbstractItemModel):
         if not index.isValid():
             return None
         item = self.itemFromIndex(index)
-        if role == Qt.DisplayRole or role == ScriptRole.scriptNameRole:
-            return item.ptr().name
+        # collection层级
+        if item.level() == 1:
+            if role == Qt.DisplayRole:
+                return item.ptr().name
+        
+        # scripts 层级
+        if item.level() == 2:
+            if role == Qt.DisplayRole or role == ScriptRole.scriptNameRole:
+                return item.ptr().name
+            if role == ScriptRole.scriptPathRole:
+                return item.ptr().script_path
+            if role == ScriptRole.scriptTypeRole:
+                return item.ptr().script_type
+            if role == ScriptRole.scriptModulePathRole:
+                return item.ptr().script_module_path
+        
+        return None
     
     def rowCount(self, parent):
         if parent.column() > 0:

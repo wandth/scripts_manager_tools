@@ -1,1 +1,0 @@
-+ scripts_manager_tools 1.0 E:/python/scripts_manager_tools

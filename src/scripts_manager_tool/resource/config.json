@@ -1,0 +1,7 @@
+{
+  "module_name": "scripts_manager_tools",
+  "admin": [
+    "test_admin"
+  ],
+  "g_main_button_name": "测试专用工具架"
+}

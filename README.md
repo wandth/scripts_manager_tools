@@ -7,9 +7,9 @@
 当安装完毕后，对ui的修改 想查看效果 运行此代码 重新加载模块即可
 
 ```python
-import ScriptsManagerWindow
-
+import scripts_manager_tool.ScriptsManagerWindow as ScriptsManagerWindow
 reload(ScriptsManagerWindow)
+
 
 ScriptsManagerWindow.createScriptsManagerWindow()
 ```

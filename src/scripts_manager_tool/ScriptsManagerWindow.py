@@ -8,9 +8,10 @@ from maya import OpenMayaUI as omui, cmds, mel
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from shiboken2 import wrapInstance
 
-from scripts_manager_tool.ScriptsManagerUI.widgets import scriptsCollectionWidget
+from scripts_manager_tool.ScriptsManagerUI import scriptsCollectionWidget, scriptsWidget
 
 reload(scriptsCollectionWidget)
+reload(scriptsWidget)
 
 
 def mayaMainWindows():
@@ -41,7 +42,7 @@ class MainWindow(MayaQWidgetDockableMixin, QWidget):
         
         # 脚本页面  ----> 无分类
         self.menus.insertItem(1, u"脚本")
-        self.scrips_widget = QWidget()
+        self.scrips_widget = scriptsWidget.ScriptsWidget(self)
         
         # 脚本页面  ----> 个人收藏
         self.menus.insertItem(2, u"收藏")

@@ -9,7 +9,6 @@ def onMayaDroppedPythonFile(*args, **kwargs):
     """This function is only supported since Maya 2017 Update 3"""
     pass
 
-
 def _onMayaDropped():
     current_path = os.path.dirname(__file__)
     # 若是外包 则需要拖动安装

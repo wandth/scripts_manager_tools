@@ -101,6 +101,16 @@ class Script(BaseModel):
                 deleted_script = Script.get(Script.name == script.name)
                 deleted_script.delete_instance(recursive=True, delete_nullable=True)
                 deleted_script.save()
+    
+    @staticmethod
+    def getScripts():
+        return Script.select()
+    
+    def __repr__(self):
+        return "current script name is <{name}> path is <{path}>".format(
+            name=self.name,
+            path=self.script_path
+        )
 
 
 class ScriptsCollection(BaseModel):

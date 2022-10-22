@@ -28,8 +28,62 @@ class ScriptType:
     python_module_type = 2
 
 
-scripts_collection_deferred = DeferredThroughModel()
+scripts_tags_deferred = DeferredThroughModel()
 glad_scripts_deferred = DeferredThroughModel()
+
+
+class Tag(BaseModel):
+    name = CharField(unique=True, primary_key=True)
+    
+    @staticmethod
+    def addTag(tag_name):
+        with database:
+            Tag.insert(name=tag_name).on_conflict_replace().execute()
+    
+    @staticmethod
+    def deleteTag(tag_name):
+        pass
+    
+    @staticmethod
+    def getTags():
+        return Tag.select()
+    
+    @staticmethod
+    def addScriptToTag(tag_name, script_name):
+        """
+        将脚本添加到某个类别中
+        @param tag_name: 要添加的类别的名字
+        @param script_name: 脚本的名字
+        @return:
+        """
+        with database:
+            tag = Tag.get(Tag.name == tag_name)
+            if not tag:
+                cmds.error(tag, "is not exists")
+                return
+            script = Script.get_or_none(Script.name == script_name)
+            
+            if script is None:
+                cmds.error(script, "is not exists")
+                return
+            
+            if tag not in script.tags:
+                script.tags.add(tag)
+    
+    @staticmethod
+    def removeTagFromScript(tag_name, script_name):
+        with database:
+            tag = Tag.get(Tag.name == tag_name)
+            if not tag:
+                cmds.error(script_name, "is not exists")
+                return
+            script = Script.get_or_none(Script.name == script_name)
+            
+            if script is None:
+                cmds.error(script, "is not exists")
+                return
+            if tag not in script.tags:
+                script.tags.remove(tag)
 
 
 class Script(BaseModel):
@@ -43,6 +97,8 @@ class Script(BaseModel):
     
     # 如果是python 模块的话 我们还需要一个 module的path 当运行此脚本的时候 把module path添加到系统path里
     script_module_path = CharField()
+    
+    tags = ManyToManyField(Tag, backref="Script", through_model=scripts_tags_deferred)
     
     @staticmethod
     def addScript(file_info, typ):
@@ -105,75 +161,6 @@ class Script(BaseModel):
     @staticmethod
     def getScripts():
         return Script.select()
-    
-    def __repr__(self):
-        return "current script name is <{name}> path is <{path}>".format(
-            name=self.name,
-            path=self.script_path
-        )
-
-
-class ScriptsCollection(BaseModel):
-    """
-    脚本的集合 也就是当前脚本属于那个类别 一个脚本可以被添加进入多个类别
-    """
-    name = CharField(unique=True, primary_key=True)
-    scripts = ManyToManyField(Script, backref="scriptsCollection", through_model=scripts_collection_deferred)
-    
-    @staticmethod
-    def addCollection(collection_name):
-        with database:
-            ScriptsCollection.insert(name=collection_name).on_conflict_ignore().execute()
-    
-    @staticmethod
-    def removeCollection(collection_name):
-        # todo: 待实现
-        raise NotImplementedError
-    
-    @staticmethod
-    def addScriptToCollection(collection_name, script_name):
-        """
-        将脚本添加到某个类别中
-        @param collection_name: 要添加的类别的名字
-        @param script_name: 脚本的名字
-        @return:
-        """
-        with database:
-            script = Script.get(Script.name == script_name)
-            if not script:
-                cmds.error(script_name, "is not exists")
-                return
-            current_collection = ScriptsCollection.get_or_none(ScriptsCollection.name == collection_name)
-            
-            if current_collection is None:
-                cmds.error(collection_name, "is not exists")
-                return
-            
-            if script not in current_collection.scripts:
-                current_collection.scripts.add(script)
-    
-    @staticmethod
-    def removeScriptFromCollection(collection_name, script_name):
-        with database:
-            script = Script.get(Script.name == script_name)
-            if not script:
-                cmds.error(script_name, "is not exists")
-                return
-            current_collection = ScriptsCollection.get_or_none(ScriptsCollection.name == collection_name)
-            
-            if current_collection is None:
-                cmds.error(collection_name, "is not exists")
-                return
-            if script in current_collection.scripts:
-                current_collection.scripts.remove(script)
-    
-    @staticmethod
-    def getScriptsCollections():
-        """
-        获得当前数据库里所有的集合
-        @return:
-        """
-        return ScriptsCollection.select()
 
 
 class GladScripts(BaseModel):
@@ -222,9 +209,9 @@ class GladScripts(BaseModel):
                 current_user.scripts.remove(script)
 
 
-class ScriptsCollectionThoughModel(BaseModel):
+class ScriptTagsThoughModel(BaseModel):
     script = ForeignKeyField(Script)
-    scripts_collection = ForeignKeyField(ScriptsCollection)
+    tag = ForeignKeyField(Tag)
 
 
 class GladScriptsThoughModel(BaseModel):
@@ -232,16 +219,16 @@ class GladScriptsThoughModel(BaseModel):
     glad_scripts = ForeignKeyField(GladScripts)
 
 
-scripts_collection_deferred.set_model(ScriptsCollectionThoughModel)
+scripts_tags_deferred.set_model(ScriptTagsThoughModel)
 glad_scripts_deferred.set_model(GladScriptsThoughModel)
 
 with database:
     database.create_tables(
         [
             Script,
-            ScriptsCollection,
+            Tag,
             GladScripts,
-            ScriptsCollectionThoughModel,
+            ScriptTagsThoughModel,
             GladScriptsThoughModel,
         ], safe=True
     )

@@ -1,8 +1,11 @@
 from PySide2.QtCore import Qt, QAbstractListModel
 
-from scripts_manager_tool.ScriptsManagerUI.modelView import scriptsTreeModel
 
-reload(scriptsTreeModel)
+class ScriptRole:
+    scriptNameRole = Qt.UserRole
+    scriptPathRole = Qt.UserRole + 1
+    scriptTypeRole = Qt.UserRole + 2
+    scriptModulePathRole = Qt.UserRole + 3
 
 
 class ScriptsListModel(QAbstractListModel):
@@ -20,16 +23,16 @@ class ScriptsListModel(QAbstractListModel):
             return None
         
         row = index.row()
-        if role == Qt.DisplayRole or role == scriptsTreeModel.ScriptRole.scriptNameRole:
+        if role == Qt.DisplayRole or role == ScriptRole.scriptNameRole:
             value = self._data[row].name
             return value
-        if role == scriptsTreeModel.ScriptRole.scriptPathRole:
+        if role == ScriptRole.scriptPathRole:
             value = self._data[row].script_path
             return value
-        if role == scriptsTreeModel.ScriptRole.scriptTypeRole:
+        if role == ScriptRole.scriptTypeRole:
             value = self._data[row].script_type
             return value
-        if role == scriptsTreeModel.ScriptRole.scriptModulePathRole:
+        if role == ScriptRole.scriptModulePathRole:
             value = self._data[row].script_module_path
             return value
         return None

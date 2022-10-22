@@ -14,10 +14,10 @@ class ScriptsWidget(QWidget):
         
         main_lay = QVBoxLayout(self)
         self.search_line = QLineEdit()
-        sql.Script.updateScripts()
-        sql.Tag.addTag("xxx_tag")
-        sql.Tag.addTag(u"中文tag")
-        sql.Tag.addScriptToTag("xxx_tag", "test")
+        # sql.Script.updateScripts()
+        # sql.Tag.addTag("xxx_tag")
+        # sql.Tag.addTag(u"中文tag")
+        # sql.Tag.addScriptToTag("xxx_tag", "test")
         
         self.tags = [tag.name for tag in sql.Tag.getTags()]
         

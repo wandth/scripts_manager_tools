@@ -1,6 +1,6 @@
 from PySide2.QtCore import QSortFilterProxyModel, QRegExp, Qt
 
-from scripts_manager_tool.ScriptsManagerUI.modelView import scriptsListModel
+from scripts_manager_tool.ScriptsManagerUI.modelView import scriptsTreeModel
 
 
 class ScriptsListFilterProxy(QSortFilterProxyModel):
@@ -17,6 +17,6 @@ class ScriptsListFilterProxy(QSortFilterProxyModel):
     
     def filterAcceptsRow(self, src_row, src_parent):
         src_index = self.sourceModel().index(src_row, 0, src_parent)
-        src_text = self.sourceModel().data(src_index, scriptsListModel.ScriptRole.scriptNameRole)
+        src_text = self.sourceModel().data(src_index, scriptsTreeModel.ScriptRole.scriptNameRole)
         
         return self.filterRegExp().pattern().lower() in src_text.lower()

@@ -1,4 +1,3 @@
-# coding=utf-8
 from PySide2.QtWidgets import QWidget, QLineEdit, QListView, QVBoxLayout
 
 from scripts_manager_tool.ScriptsManagerUI.modelView import scriptsListModel, scriptsListFilterModel
@@ -14,14 +13,7 @@ class ScriptsWidget(QWidget):
         
         main_lay = QVBoxLayout(self)
         self.search_line = QLineEdit()
-        # sql.Script.updateScripts()
-        # sql.Tag.addTag("xxx_tag")
-        # sql.Tag.addTag(u"中文tag")
-        # sql.Tag.addScriptToTag("xxx_tag", "test")
         
-        self.tags = [tag.name for tag in sql.Tag.getTags()]
-        
-        print self.tags
         self.scripts_view = QListView()
         
         self.scripts_source_model = scriptsListModel.ScriptsListModel([script for script in sql.Script.getScripts()])

@@ -8,8 +8,9 @@ from maya import OpenMayaUI as omui, cmds, mel
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from shiboken2 import wrapInstance
 
-from scripts_manager_tool.ScriptsManagerUI import  scriptsWidget
+from scripts_manager_tool.ScriptsManagerUI import scriptsCollectionWidget, scriptsWidget
 
+reload(scriptsCollectionWidget)
 reload(scriptsWidget)
 
 
@@ -37,7 +38,7 @@ class MainWindow(MayaQWidgetDockableMixin, QWidget):
         
         # 脚本页面  ----> 有分类
         self.menus.insertItem(0, u"分类")
-        self.scripts_collection_widget = QWidget()
+        self.scripts_collection_widget = scriptsCollectionWidget.ScriptsCollectionWidget(self)
         
         # 脚本页面  ----> 无分类
         self.menus.insertItem(1, u"脚本")

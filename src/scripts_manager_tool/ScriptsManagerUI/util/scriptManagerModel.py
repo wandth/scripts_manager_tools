@@ -106,13 +106,6 @@ class Script(BaseModel):
     def getScripts():
         return Script.select()
     
-    def __repr__(self):
-        return "current script name is <{name}> path is <{path}>".format(
-            name=self.name,
-            path=self.script_path
-        )
-
-
 class ScriptsCollection(BaseModel):
     """
     脚本的集合 也就是当前脚本属于那个类别 一个脚本可以被添加进入多个类别

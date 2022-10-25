@@ -1,1 +1,2 @@
-print "测试"
+# coding=utf-8
+print u"测试"
